@@ -17,7 +17,21 @@ function plugin() {
     }
     if( value.search(END) > 0 ) {
       return eat(value.slice(0,value.search(END))+value.match(END)[0])({
+        type:'html',
+        value:'<textarea>' + value.slice(value.match(START)[0].length+1, value.search(END)-1 ) + '</textarea>'
+        /*
         type: 'form',
+        children: [ {
+          type: 'texterea',
+          children: [ { type: 'text',
+            value: value.slice(value.match(START)[0].length+1, value.search(END)-1 )
+          } ],
+          data: {
+            hName: 'textarea'
+          }
+        }],
+        */
+        /*
         data: {
           hName: 'form',
           hChildren : [ {
@@ -30,6 +44,8 @@ function plugin() {
             }
           }]
         }
+          hName: 'form'
+        }*/
       });
     } else
       return true;
