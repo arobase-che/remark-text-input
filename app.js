@@ -19,7 +19,7 @@ function plugin() {
       return eat(value.slice(0,value.search(END))+value.match(END)[0])({
         type: 'form',
         data: {
-          hName: 'form'
+          hName: 'form',
           hChildren : [ {
             type: 'texterea',
             data: {
