@@ -14,10 +14,10 @@ function prop2HTML( prop ) {
   if( 'id' in prop && prop['id'] ) {
     html += ' id=' + prop['id'];
   }
-  if( 'class' in prop ) {
+  if( 'class' in prop && prop['class'] ) {
     html += ' class="' + prop['class'].join(' ') + '"';
   }
-  if( 'key' in prop ) {
+  if( 'key' in prop && prop['key'] ) {
     Object.entries(prop['key']).forEach(
       ([key, value]) => {
         html += ' '
