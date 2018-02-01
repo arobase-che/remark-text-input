@@ -1,168 +1,170 @@
 'use strict';
 
-
 const START = /^(\[_+)/g;
-const END   = /(_+])/g;
+const END = /(_+])/g;
 
 function locator(value, fromIndex) {
-  var index = value.indexOf(START, fromIndex);
+  const index = value.indexOf(START, fromIndex);
   return index;
 }
-function prop2HTML( prop ) {
+function prop2HTML(prop) {
   let html = '';
 
-  if( 'id' in prop && prop['id'] ) {
-    html += ' id=' + prop['id'];
+  if ('id' in prop && prop.id) {
+    html += ' id=' + prop.id;
   }
-  if( 'class' in prop && prop['class'] ) {
-    html += ' class="' + prop['class'].join(' ') + '"';
+  if ('class' in prop && prop.class) {
+    html += ' class="' + prop.class.join(' ') + '"';
   }
-  if( 'key' in prop && prop['key'] ) {
-    Object.entries(prop['key']).forEach(
+  if ('key' in prop && prop.key) {
+    Object.entries(prop.key).forEach(
       ([key, value]) => {
-        html += ' '
-        if(value) {
-          html += key+'="'+value+'"';
-        }else{
-          html +=key
+        html += ' ';
+        if (value) {
+          html += key + '="' + value + '"';
+        } else {
+          html += key;
         }
       }
-    )
+    );
   }
 
-  return html
+  return html;
 }
 
-function parseHTMLparam( value, indexNext ) {
-  let lets_eat = "{";
+function parseHTMLparam(value, indexNext) {
+  let letsEat = '{';
   indexNext++;
 
-  const eat = ( ( chars ) => {
-    let eaten = ""
-    while(chars.indexOf(value.charAt(indexNext)) >= 0) {
-      lets_eat+=value.charAt(indexNext);
-      eaten   +=value.charAt(indexNext);
+  const eat = (chars => {
+    let eaten = '';
+    while (chars.indexOf(value.charAt(indexNext)) >= 0) {
+      letsEat += value.charAt(indexNext);
+      eaten += value.charAt(indexNext);
       indexNext++;
     }
     return eaten;
   });
-  const eat_until = ( ( chars ) => {
-    let eaten = ""
-    while(chars.indexOf(value.charAt(indexNext)) < 0) {
-      lets_eat+=value.charAt(indexNext);
-      eaten   +=value.charAt(indexNext);
+  const eatUntil = (chars => {
+    let eaten = '';
+    while (chars.indexOf(value.charAt(indexNext)) < 0) {
+      letsEat += value.charAt(indexNext);
+      eaten += value.charAt(indexNext);
       indexNext++;
     }
     return eaten;
   });
 
-
-
-  let prop = {key:undefined /* {} */, 'class':undefined /*[]*/,id:undefined /*""*/}
+  const prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
   let type;
-    
-  while(true) {
-    let labelFirst = "";
-    let labelSecond = undefined;
+
+  while (value.charAt(indexNext) !== '}') {
+    let labelFirst = '';
+    let labelSecond;
 
     eat(' \t\n\r\v');
 
-    if( value.charAt(indexNext) == '}' ) { // Fin l'accolade
-      break;
-    } else if( value.charAt(indexNext) == '.' ) { // Classes
+    if (value.charAt(indexNext) === '}') { // Fin l'accolade
+      continue;
+    } else if (value.charAt(indexNext) === '.') { // Classes
       type = 'class';
       indexNext++;
-      lets_eat+='.'
-    } else if( value.charAt(indexNext) == '#' ) { // ID
+      letsEat += '.';
+    } else if (value.charAt(indexNext) === '#') { // ID
       type = 'id';
       indexNext++;
-      lets_eat+='#'
+      letsEat += '#';
     } else { // Key
       type = 'key';
     }
 
     // Extract name
-    labelFirst = eat_until( '=\t\b\r\v  }')
+    labelFirst = eatUntil('=\t\b\r\v  }');
 
-    if( value.charAt(indexNext) == '=' ) { // Set labelSecond
+    if (value.charAt(indexNext) === '=') { // Set labelSecond
       indexNext++;
-      lets_eat+='=';
+      letsEat += '=';
 
-      if( value.charAt(indexNext) == '"' ) {
+      if (value.charAt(indexNext) === '"') {
         indexNext++;
-        lets_eat+='"';
-        labelSecond = eat_until('"}\n')
+        letsEat += '"';
+        labelSecond = eatUntil('"}\n');
 
-        if( value.charAt(indexNext) != '"' ) {
-          // Erreur
-        }else{
+        if (value.charAt(indexNext) === '"') {
           indexNext++;
-          lets_eat+='"';
+          letsEat += '"';
+        } else {
+          // Erreur
         }
-      } else if( value.charAt(indexNext) == "'" ) {
+      } else if (value.charAt(indexNext) === '\'') {
         indexNext++;
-        lets_eat+="'";
-        labelSecond = eat_until("'}\n")
+        letsEat += '\'';
+        labelSecond = eatUntil('\'}\n');
 
-        if( value.charAt(indexNext) !="'" ) {
-          // Erreur
-        }else{
+        if (value.charAt(indexNext) === '\'') {
           indexNext++;
-          lets_eat+="'";
+          letsEat += '\'';
+        } else {
+          // Erreur
         }
       } else {
-        labelSecond = eat_until(' \t\n\r\v=}');
+        labelSecond = eatUntil(' \t\n\r\v=}');
       }
     }
-    switch( type ) {
+    switch (type) {
       case 'id': // ID
-        prop['id']=labelFirst;
-      break;
+        prop.id = labelFirst;
+        break;
       case 'class':
-        if( ! prop['class'] )
-          prop['class'] = []
-        prop['class'].push(labelFirst);
-      break;
+        if (!prop.class) {
+          prop.class = [];
+        }
+        prop.class.push(labelFirst);
+        break;
       case 'key':
-        if( !prop['key'] ) prop['key'] = {};
-        if( labelFirst != 'id' && labelFirst != 'class' )
-        prop['key'][labelFirst] = labelSecond ? labelSecond : '';
-      break;
+        if (!prop.key) {
+          prop.key = {};
+        }
+        if (labelFirst !== 'id' && labelFirst !== 'class') {
+          prop.key[labelFirst] = labelSecond ? labelSecond : '';
+        }
+        break;
+      default:
+        // Default
+    }
+    if (labelSecond) {
+      console.log('{{' + labelFirst + '=' + labelSecond + '}}');
+    } else {
+      console.log('{{' + labelFirst + '}}');
+    }
   }
-    if( labelSecond ) 
-      console.log("{{" + labelFirst + "=" + labelSecond + "}}");
-    else
-      console.log("{{" + labelFirst + "}}");
-  }
-  lets_eat+="}";
+  letsEat += '}';
 
-  return {type:type, prop:prop, eaten:lets_eat};
-
+  return {type, prop, eaten: letsEat};
 }
 
 function plugin() {
-  function blockTokenizer(eat, value, silent) {
-
-    if (!this.options.gfm || value.search(START) != 0) {
+  function blockTokenizer(eat, value) {
+    if (!this.options.gfm || value.search(START) !== 0) {
       return;
     }
-    let prop = {key:undefined /* {} */, 'class':undefined /*[]*/,id:undefined /*""*/};
+    let prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
     let eaten = '';
-    console.log(value[value.search(END)+value.match(END)[0].length])
-    if( value.charAt(value.search(END)+value.match(END)[0].length) == '{' ) {
-      let res = parseHTMLparam( value, value.search(END)+value.match(END)[0].length);
+    console.log(value[value.search(END) + value.match(END)[0].length]);
+    if (value.charAt(value.search(END) + value.match(END)[0].length) === '{') {
+      const res = parseHTMLparam(value, value.search(END) + value.match(END)[0].length);
       eaten = res.eaten;
       console.log(res.eaten);
-      prop=res.prop;
+      prop = res.prop;
     }
     console.log(prop2HTML(prop));
-    if( value.search(END) > 0 ) {
-      return eat(value.slice(0,value.search(END))+value.match(END)[0]+eaten)({
-        type:'html',
-        value:'<textarea' + prop2HTML(prop) + '>' + value.slice(value.match(START)[0].length+1, value.search(END)-1 ) + '</textarea>'
+    if (value.search(END) > 0) {
+      return eat(value.slice(0, value.search(END)) + value.match(END)[0] + eaten)({
+        type: 'html',
+        value: '<textarea' + prop2HTML(prop) + '>' + value.slice(value.match(START)[0].length + 1, value.search(END) - 1) + '</textarea>'
         /*
 
-        type: 'form',
+        Type: 'form',
         data: {
           hName:'form',
           hChildren : [ {
@@ -179,7 +181,6 @@ function plugin() {
             }]
           }, { type:'element', tagName:'div', properties:{} } ]
         }
-
 
         type: 'form',
         children: [ {
@@ -206,28 +207,27 @@ function plugin() {
           }]
         }
           hName: 'form'
-        }*/
+        } */
       });
-    } else
-      return true;
+    }
+    return true;
   }
 
   blockTokenizer.locator = locator;
 
-  var Parser = this.Parser;
+  const Parser = this.Parser;
 
   // Inject blockTokenizer
-  const blockTokenizers = Parser.prototype.blockTokenizers
-  const blockMethods = Parser.prototype.blockMethods
-  blockTokenizers.textinput = blockTokenizer
-  blockMethods.splice(blockMethods.indexOf('fencedCode') + 1, 0, 'textinput')
+  const blockTokenizers = Parser.prototype.blockTokenizers;
+  const blockMethods = Parser.prototype.blockMethods;
+  blockTokenizers.textinput = blockTokenizer;
+  blockMethods.splice(blockMethods.indexOf('fencedCode') + 1, 0, 'textinput');
 
-
-  var Compiler = this.Compiler;
+  const Compiler = this.Compiler;
 
   // Stringify
   if (Compiler) {
-    var visitors = Compiler.prototype.visitors;
+    const visitors = Compiler.prototype.visitors;
     visitors.textinput = function (node) {
       return '[__' + this.all(node).join('') + '__]';
     };
