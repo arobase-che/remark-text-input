@@ -15,9 +15,16 @@
     "remark"
   ],
   "devDependencies": {
+    "jest": "^22.1.4",
     "xo": "^0.18.2"
   },
-  "xo" : {
-    "space" : true
+  "xo": {
+    "space": true,
+    "rules": {
+      "comma-dangle": [
+        "error",
+        "always-multiline"
+      ]
+    }
   }
 }

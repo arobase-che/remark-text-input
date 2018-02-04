@@ -11,17 +11,19 @@ function prop2HTML(prop) {
   let html = '';
 
   if ('id' in prop && prop.id) {
-    html += ' id=' + prop.id;
+    html += ` id=${prop.id}`;
   }
   if ('class' in prop && prop.class) {
-    html += ' class="' + prop.class.join(' ') + '"';
+    html += ` class="${prop.class.join(' ')}"`;
   }
   if ('key' in prop && prop.key) {
     Object.entries(prop.key).forEach(
-      ([key, value]) => {
+      ([key,
+        value,
+      ]) => {
         html += ' ';
         if (value) {
-          html += key + '="' + value + '"';
+          html += `${key}="${value}"`;
         } else {
           html += key;
         }
@@ -36,7 +38,7 @@ function parseHTMLparam(value, indexNext) {
   let letsEat = '{';
   indexNext++;
 
-  const eat = (chars => {
+  const eat = chars => {
     let eaten = '';
     while (chars.indexOf(value.charAt(indexNext)) >= 0) {
       letsEat += value.charAt(indexNext);
@@ -44,8 +46,8 @@ function parseHTMLparam(value, indexNext) {
       indexNext++;
     }
     return eaten;
-  });
-  const eatUntil = (chars => {
+  };
+  const eatUntil = chars => {
     let eaten = '';
     while (chars.indexOf(value.charAt(indexNext)) < 0) {
       letsEat += value.charAt(indexNext);
@@ -53,9 +55,13 @@ function parseHTMLparam(value, indexNext) {
       indexNext++;
     }
     return eaten;
-  });
+  };
 
-  const prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
+  const prop =
+    {key: undefined /* {} */,
+      class: undefined /* [] */,
+      id: undefined,
+    };
   let type;
 
   while (value.charAt(indexNext) !== '}') {
@@ -126,21 +132,20 @@ function parseHTMLparam(value, indexNext) {
           prop.key = {};
         }
         if (labelFirst !== 'id' && labelFirst !== 'class') {
-          prop.key[labelFirst] = labelSecond ? labelSecond : '';
+          prop.key[labelFirst] = labelSecond || '';
         }
         break;
       default:
         // Default
     }
-    if (labelSecond) {
-      console.log('{{' + labelFirst + '=' + labelSecond + '}}');
-    } else {
-      console.log('{{' + labelFirst + '}}');
-    }
   }
   letsEat += '}';
 
-  return {type, prop, eaten: letsEat};
+  return {
+    type,
+    prop,
+    eaten: letsEat,
+  };
 }
 
 function plugin() {
@@ -148,20 +153,27 @@ function plugin() {
     if (!this.options.gfm || value.search(START) !== 0) {
       return;
     }
-    let prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
+
+    let prop = {
+      key: undefined /* {} */,
+      class: undefined /* [] */,
+      id: undefined,
+    };
+
     let eaten = '';
-    console.log(value[value.search(END) + value.match(END)[0].length]);
+
     if (value.charAt(value.search(END) + value.match(END)[0].length) === '{') {
       const res = parseHTMLparam(value, value.search(END) + value.match(END)[0].length);
       eaten = res.eaten;
-      console.log(res.eaten);
       prop = res.prop;
     }
-    console.log(prop2HTML(prop));
+
     if (value.search(END) > 0) {
       return eat(value.slice(0, value.search(END)) + value.match(END)[0] + eaten)({
         type: 'html',
-        value: '<textarea' + prop2HTML(prop) + '>' + value.slice(value.match(START)[0].length + 1, value.search(END) - 1) + '</textarea>'
+        value: `<textarea${prop2HTML(prop)}>` +
+               `${value.slice(value.match(START)[0].length + 1, value.search(END) - 1)}` +
+               '</textarea>',
         /*
 
         Type: 'form',
@@ -229,7 +241,7 @@ function plugin() {
   if (Compiler) {
     const visitors = Compiler.prototype.visitors;
     visitors.textinput = function (node) {
-      return '[__' + this.all(node).join('') + '__]';
+      return `[__${this.all(node).join('')}__]`;
     };
   }
 }
