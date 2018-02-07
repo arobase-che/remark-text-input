@@ -25,24 +25,67 @@ const renderRaw = text => unified()
   .use(stringify)
   .processSync(text);
 
-test('text simple', t => {
+test('snapshot simple', t => {
   const {contents} = render(file(join(__dirname, 'text.md')));
   t.snapshot(contents);
 });
 
-test('text raw', t => {
+test('snapshot raw', t => {
   const {contents} = renderRaw(file(join(__dirname, 'text.md')));
   t.snapshot(contents);
 });
 
-test.todo('empty');
-test.todo('empty raw');
+test('emty', t => {
+  const {contents} = render('[____\n____]');
+  t.is(contents, '<textarea></textarea>');
+});
 
-test.todo('simple');
-test.todo('simple raw');
+test('emty-raw', t => {
+  const {contents} = renderRaw('[____\n____]');
+  t.is(contents, '<textarea></textarea>');
+});
 
-test.todo('long');
-test.todo('long raw');
+test('simple', t => {
+  const {contents} = render('[____\nHere some text\n____]');
+  t.is(contents, '<textarea>Here some text</textarea>');
+});
+
+test('simple-raw', t => {
+  const {contents} = renderRaw('[____\nHere some text\n____]');
+  t.is(contents, '<textarea>Here some text</textarea>');
+});
+
+test('long', t => {
+  const {contents} = render(`
+[_______
+
+Here some awesome text !
+With severale lines, ...
+
+a good text area
+_______]`);
+  t.is(contents, `<textarea>
+Here some awesome text !
+With severale lines, ...
+
+a good text area</textarea>`);
+});
+
+test('long-raw', t => {
+  const {contents} = renderRaw(`
+[_______
+
+Here some awesome text !
+With severale lines, ...
+
+a good text area
+_______]`);
+  t.is(contents, `<textarea>
+Here some awesome text !
+With severale lines, ...
+
+a good text area</textarea>`);
+});
 
 test.todo('id text');
 test.todo('class');
