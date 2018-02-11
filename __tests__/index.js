@@ -87,6 +87,14 @@ With severale lines, ...
 a good text area</textarea>`);
 });
 
+test('not a text-area', t => {
+  const {contents} = renderRaw(`
+[_______some text
+Oups bad-formated text area
+_______]`);
+  t.notRegex(contents, /textarea/);
+});
+
 test.todo('id text');
 test.todo('class');
 test.todo('classes');
