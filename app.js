@@ -1,7 +1,7 @@
 'use strict';
 
-const START = /^(\[_+)/g;
-const END = /(_+])/g;
+const START = /^(\[_+)\n/g;
+const END = /\n(_+])/g;
 
 function locator(value, fromIndex) {
   const index = value.indexOf(START, fromIndex);
@@ -172,7 +172,7 @@ function plugin() {
       return eat(value.slice(0, value.search(END)) + value.match(END)[0] + eaten)({
         type: 'html',
         value: `<textarea${prop2HTML(prop)}>` +
-               `${value.slice(value.match(START)[0].length + 1, value.search(END) - 1)}` +
+               `${value.slice(value.match(START)[0].length, value.search(END))}`
                '</textarea>',
         /*
 
