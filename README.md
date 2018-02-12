@@ -10,14 +10,12 @@ You can add a text area this way :
 ```markdown
 [______
 Some text.
-
-This is the content of the text area.
 _____]
 ```
 
 Wich leads to :
 
-![img]()
+![Screenshot](https://raw.githubusercontent.com/arobase-che/remark-select/master/images/example_1.png)
 
 
 ## Installation
