@@ -15,7 +15,7 @@ _____]
 
 Wich leads to :
 
-![Screenshot](https://raw.githubusercontent.com/arobase-che/remark-select/master/images/example_1.png)
+![Screenshot](https://raw.githubusercontent.com/arobase-che/remark-text-input/master/images/example_1.png)
 
 
 ## Installation
