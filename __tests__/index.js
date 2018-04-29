@@ -97,7 +97,6 @@ _______]`);
 
 test('simple-raw2', t => {
   const {contents} = renderRaw('[____\nHere some text\n____]\n\n<div>Yeah !</div>');
-  console.log('@@' + contents.toLowerCase() + '@@');
   t.is(contents.toLowerCase(), '<textarea>here some text</textarea>\n<div>yeah !</div>');
 });
 
