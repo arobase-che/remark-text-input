@@ -1,6 +1,6 @@
 'use strict';
 
-const START = /^(\[_+)/g;
+const START = /^(\[_+\n)/g;
 const END = /(_+])/g;
 
 const parseAttr = require('md-attr-parser');
@@ -30,13 +30,17 @@ function plugin() {
         eaten = res.eaten;
         prop = res.prop;
       }
+      let end = value.search(END);
+      if (end !== value.match(START)[0].length) {
+        end -= 1;
+      }
       const t = eat(value.slice(0, value.match(END)[0].lenght) + eaten)({
         type: 'textarea',
         data: {
           hName: 'TEXTAREA',
           hProperties: prop,
           hChildren: [{type: 'text',
-            value: value.slice(value.match(START)[0].length, value.search(END)),
+            value: value.slice(value.match(START)[0].length, end),
           }],
         },
       });
