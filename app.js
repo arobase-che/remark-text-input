@@ -1,7 +1,7 @@
 'use strict';
 
-const START = /^(\[_+)\n/g;
-const END = /\n(_+])/g;
+const START = /^(\[_+)/g;
+const END = /(_+])/g;
 
 const parseAttr = require('md-attr-parser');
 
