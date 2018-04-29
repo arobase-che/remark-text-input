@@ -27,7 +27,7 @@ const renderRaw = text => unified()
 
 test('snapshot simple', t => {
   const {contents} = render(file(join(__dirname, 'text.md')));
-  t.snapshot(contents);
+  t.snapshot(contents.toLowerCase());
 });
 
 test('snapshot raw', t => {
@@ -37,36 +37,36 @@ test('snapshot raw', t => {
 
 test('emty', t => {
   const {contents} = render('[____\n____]');
-  t.is(contents, '<textarea></textarea>');
+  t.is(contents.toLowerCase(), '<textarea></textarea>');
 });
 
 test('emty-raw', t => {
   const {contents} = renderRaw('[____\n____]');
-  t.is(contents, '<textarea></textarea>');
+  t.is(contents.toLowerCase(), '<textarea></textarea>');
 });
 
 test('simple', t => {
   const {contents} = render('[____\nHere some text\n____]');
-  t.is(contents, '<textarea>Here some text</textarea>');
+  t.is(contents.toLowerCase(), '<textarea>here some text</textarea>');
 });
 
 test('simple-raw', t => {
   const {contents} = renderRaw('[____\nHere some text\n____]');
-  t.is(contents, '<textarea>Here some text</textarea>');
+  t.is(contents.toLowerCase(), '<textarea>here some text</textarea>');
 });
 
 test('long', t => {
   const {contents} = render(`
 [_______
 
-Here some awesome text !
-With severale lines, ...
+here some awesome text !
+with severale lines, ...
 
 a good text area
 _______]`);
-  t.is(contents, `<textarea>
-Here some awesome text !
-With severale lines, ...
+  t.is(contents.toLowerCase(), `<textarea>
+here some awesome text !
+with severale lines, ...
 
 a good text area</textarea>`);
 });
@@ -75,14 +75,14 @@ test('long-raw', t => {
   const {contents} = renderRaw(`
 [_______
 
-Here some awesome text !
-With severale lines, ...
+here some awesome text !
+with severale lines, ...
 
 a good text area
 _______]`);
-  t.is(contents, `<textarea>
-Here some awesome text !
-With severale lines, ...
+  t.is(contents.toLowerCase(), `<textarea>
+here some awesome text !
+with severale lines, ...
 
 a good text area</textarea>`);
 });
@@ -90,9 +90,14 @@ a good text area</textarea>`);
 test('not a text-area', t => {
   const {contents} = renderRaw(`
 [_______some text
-Oups bad-formated text area
+oups bad-formated text area
 _______]`);
-  t.notRegex(contents, /textarea/);
+  t.notRegex(contents.toLowerCase(), /textarea/);
+});
+
+test('simple-raw2', t => {
+  const {contents} = renderRaw('[____\nHere some text\n____]\n\n<div>Yeah !</div>');
+  t.is(contents.toLowerCase(), '<textarea>here some text</textarea>');
 });
 
 test.todo('id text');
