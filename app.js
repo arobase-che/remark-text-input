@@ -34,7 +34,7 @@ function plugin() {
       if (end !== value.match(START)[0].length) {
         end -= 1;
       }
-      const t = eat(value.slice(0, value.match(END)[0].lenght) + eaten)({
+      const t = eat(value.slice(0, value.search(END) + value.match(END)[0].length) + eaten)({
         type: 'textarea',
         data: {
           hName: 'TEXTAREA',

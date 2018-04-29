@@ -97,10 +97,15 @@ _______]`);
 
 test('simple-raw2', t => {
   const {contents} = renderRaw('[____\nHere some text\n____]\n\n<div>Yeah !</div>');
-  t.is(contents.toLowerCase(), '<textarea>here some text</textarea>');
+  console.log('@@' + contents.toLowerCase() + '@@');
+  t.is(contents.toLowerCase(), '<textarea>here some text</textarea>\n<div>yeah !</div>');
 });
 
-test.todo('id text');
+test('id', t => {
+  const {contents} = renderRaw('[____\nHere some text\n____]{#id}');
+  t.is(contents.toLowerCase(), '<textarea id="id">here some text</textarea>');
+});
+
 test.todo('class');
 test.todo('classes');
 test.todo('key-value');
