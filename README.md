@@ -20,8 +20,42 @@ Wich leads to :
 
 ## Installation
 
-Not ready at the moment.
+Easy as npm i :
 
+```shell
+npm install remark-text-input
+```
+
+
+## Installation
+
+An example of code :
+
+```js
+const unified = require('unified')
+const remarkParse = require('remark-parse')
+const stringify = require('rehype-stringify')
+const remark2rehype = require('remark-rehype')
+
+const textInput = require('remark-text-input')
+
+const testFile = `This is a text area : 
+
+[_____
+A editable text here
+_____]`
+
+unified()
+  .use(remarkParse)
+  .use(textInput)
+  .use(remark2rehype) 
+  .use(stringify)
+  .process( testFile, (err, file) => {
+    console.log(String(file));
+  } );
+```
+
+In the file, a text-area should be preceded by an empty line.
 
 ## Configuration
 
