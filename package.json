@@ -1,8 +1,8 @@
 {
   "name": "remark-text-input",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A remark plugin that parse a syntax for textarea",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "dependencies": {
     "md-attr-parser": "^1.2.1"
   },
