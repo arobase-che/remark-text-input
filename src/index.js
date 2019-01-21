@@ -51,18 +51,18 @@ function plugin() {
 
   blockTokenizer.locator = locator;
 
-  const Parser = this.Parser;
+  const {Parser} = this;
 
-  const blockTokenizers = Parser.prototype.blockTokenizers;
-  const blockMethods = Parser.prototype.blockMethods;
+  const {blockTokenizers} = Parser.prototype;
+  const {blockMethods} = Parser.prototype;
   blockTokenizers.textinput = blockTokenizer;
   blockMethods.splice(blockMethods.indexOf('fencedCode') + 1, 0, 'textinput');
 
-  const Compiler = this.Compiler;
+  const {Compiler} = this;
 
   // Stringify
   if (Compiler) {
-    const visitors = Compiler.prototype.visitors;
+    const {visitors} = Compiler.prototype;
     visitors.textinput = function (node) {
       return `[__${this.all(node).join('')}__]`;
     };

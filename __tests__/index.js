@@ -1,3 +1,7 @@
+'use strict';
+
+import plugin from '..';
+
 import {readFileSync as file} from 'fs';
 import {join} from 'path';
 import unified from 'unified';
@@ -7,8 +11,8 @@ import raw from 'rehype-raw';
 import reParse from 'remark-parse';
 import stringify from 'rehype-stringify';
 import remark2rehype from 'remark-rehype';
-
-import plugin from '../app';
+import {parse} from 'parse5';
+import isequal from 'is-equal';
 
 const render = text => unified()
   .use(reParse)
@@ -24,6 +28,16 @@ const renderRaw = text => unified()
   .use(raw)
   .use(stringify)
   .processSync(text);
+
+const isIn = (value, array) => {
+  let ret = false;
+  array.forEach(elem => {
+    if (isequal(elem, value)) {
+      ret = true;
+    }
+  });
+  return ret;
+};
 
 test('snapshot simple', t => {
   const {contents} = render(file(join(__dirname, 'text.md')));
@@ -105,15 +119,75 @@ test('id', t => {
   t.is(contents.toLowerCase(), '<textarea id="id">here some text</textarea>');
 });
 
-test.todo('class');
-test.todo('classes');
-test.todo('key-value');
-test.todo('classes key-value id');
-test.todo('overwrite class');
-test.todo('overwrite id');
-test.todo('multiple id');
+test('text-input-class', t => {
+  const {contents} = render('[______\npanda\n___]{.unicorn}');
+  t.deepEqual(parse(contents),
+    parse('<textarea class="unicorn">panda</textarea>')
+  );
+});
 
-test.todo('real1');
-test.todo('real2');
-test.todo('real3');
+test('text-input-classes', t => {
+  const {contents} = render('[______\n🦔\n___]{.unicorn .unix}');
+  t.deepEqual(parse(contents),
+    parse('<textarea class="unicorn unix">🦔</textarea>')
+  );
+});
 
+test('text-input-classes key-value id', t => {
+  const {contents} = render('[______\n🦔\n___]{.unixcorn unix=windows #false}');
+  const expected = [{name: 'id', value: 'false'},
+    {name: 'class', value: 'unixcorn'},
+    {name: 'unix', value: 'windows'}];
+  const result = parse(contents);
+  const {attrs} = result.childNodes[0].childNodes[1].childNodes[0];
+  let isok = true;
+
+  // This test comparaison is NOT perfect.
+  // But still good for what we want
+  //
+  // Here, we test if every attributes we must include are.
+  expected.forEach(e => {
+    if (!isIn(e, attrs)) {
+      t.fail();
+      isok = false;
+    }
+  });
+
+  // And the reverse, test if we doesn't create false attributes
+  attrs.forEach(e => {
+    if (!isIn(e, expected)) {
+      t.fail();
+      isok = false;
+    }
+  });
+  t.true(isok);
+});
+
+test('text-input-overwrite-class', t => {
+  const {contents} = render('[______\n🦔Ⓜ️\n___]{.sonic class="mario"}');
+  const result = parse(contents);
+  const classAttr = result.childNodes[0].childNodes[1].childNodes[0].attrs[0];
+
+  if (classAttr !== undefined && classAttr.name !== undefined && classAttr.name !== 'class') {
+    t.fail();
+  }
+  const classes = classAttr.value.split(' ');
+  const expected = ['sonic', 'mario'];
+
+  classes.forEach(elem => t.is(expected.indexOf(elem) > -1, true));
+  expected.forEach(elem => t.is(classes.indexOf(elem) > -1, true));
+});
+
+test('text-input-overwrite-id', t => {
+  const {contents} = render('[______\n🦊\n___]{id="fox" #falco}');
+  t.deepEqual(parse(contents),
+    parse('<textarea id="falco">🦊</textarea>')
+  );
+});
+
+test('text-input-multiple-id', t => {
+  const {contents} = render('[______\n🦊\n___]{#fox #falco}');
+  t.deepEqual(parse(contents),
+    parse('<textarea id="fox">🦊</textarea>')
+  );
+});
